@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>临床研究项目管理平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#1a73e8;--blue-light:#e8f0fd;--green:#00a96c;--green-light:#e6f7ef;
+  --orange:#f57c00;--orange-light:#fff3e0;--red:#d93025;--red-light:#fce8e6;
+  --purple:#7c4dff;--purple-light:#ede7ff;--gray:#5f6368;--gray-light:#f1f3f4;
+  --border:#dadce0;--bg:#f8f9fa;--card:#fff;--shadow:0 1px 3px rgba(0,0,0,.1);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1);--radius:8px;--radius-lg:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:#202124;font-size:14px;line-height:1.5}
+
+/* ===== TOP NAV ===== */
+.topnav{background:var(--card);border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:100}
+.logo{font-size:18px;font-weight:700;color:var(--blue);margin-right:32px;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.logo span{color:#34a853}
+.nav-tabs{display:flex;gap:4px;flex:1}
+.nav-tab{padding:6px 16px;border-radius:20px;font-size:14px;color:var(--gray);cursor:pointer;border:none;background:none;transition:all .2s;font-weight:500}
+.nav-tab:hover{background:var(--gray-light)}
+.nav-tab.active{background:var(--blue);color:#fff}
+.nav-right{display:flex;align-items:center;gap:12px}
+.btn{height:34px;padding:0 16px;border-radius:6px;border:1px solid var(--border);background:var(--card);font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#202124;transition:all .15s}
+.btn:hover{box-shadow:var(--shadow)}
+.btn-primary{background:var(--blue);color:#fff;border:none}
+.btn-primary:hover{background:#1557b0}
+
+/* ===== CONTAINER ===== */
+.container{max-width:1400px;margin:0 auto;padding:24px}
+
+/* ===== STAT CARDS ===== */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--radius-lg);padding:20px;border:1px solid var(--border);transition:all .2s}
+.stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.stat-label{font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.stat-value{font-size:32px;font-weight:700;color:#202124;line-height:1.1}
+.stat-value.blue{color:var(--blue)}.stat-value.green{color:var(--green)}.stat-value.orange{color:var(--orange)}.stat-value.red{color:var(--red)}.stat-value.purple{color:var(--purple)}
+.stat-sub{font-size:12px;color:var(--gray);margin-top:4px}
+.stat-trend{font-size:11px;margin-top:6px;font-weight:500}
+.stat-trend.up{color:var(--green)}.stat-trend.down{color:var(--red)}
+
+/* ===== MAIN GRID ===== */
+.main-grid{display:grid;grid-template-columns:1fr 340px;gap:20px}
+
+/* ===== CARD ===== */
+.card{background:var(--card);border-radius:var(--radius-lg);border:1px solid var(--border);margin-bottom:20px;overflow:hidden}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:15px;font-weight:600;color:#202124;display:flex;align-items:center;gap:8px}
+.card-title .badge{background:var(--blue-light);color:var(--blue);font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.card-body{padding:16px 20px}
+.card-body.no-pad{padding:0}
+
+/* ===== TABS ===== */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 20px;background:var(--card)}
+.tab-item{padding:12px 20px;font-size:14px;color:var(--gray);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500}
+.tab-item:hover{color:var(--blue)}
+.tab-item.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ===== PANEL ===== */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ===== OVERVIEW TAB ===== */
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.enrollment-list{display:flex;flex-direction:column;gap:12px}
+.enrollment-item{}
+.enrollment-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.enrollment-name{font-size:13px;font-weight:500;color:#202124;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.enrollment-num{font-size:13px;color:var(--gray);font-family:monospace}
+.enrollment-bar{height:8px;background:var(--gray-light);border-radius:4px;overflow:hidden}
+.enrollment-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.fill-blue{background:var(--blue)}.fill-green{background:var(--green)}.fill-orange{background:var(--orange)}.fill-purple{background:var(--purple)}
+
+/* Stage Distribution */
+.stage-list{display:flex;flex-direction:column;gap:8px}
+.stage-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);transition:background .15s;cursor:pointer}
+.stage-row:hover{background:var(--gray-light)}
+.stage-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.stage-info{flex:1}
+.stage-name{font-size:13px;font-weight:500;color:#202124}
+.stage-meta{font-size:11px;color:var(--gray)}
+.stage-count{font-size:18px;font-weight:700;color:#202124;font-family:monospace}
+
+/* ===== KANBAN TAB ===== */
+.kanban-board{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;padding:20px;overflow-x:auto}
+.kanban-col{min-width:220px}
+.kanban-col-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--gray-light);border-radius:var(--radius) var(--radius) 0 0;font-size:13px;font-weight:600;color:var(--gray)}
+.kanban-col-count{background:var(--border);color:var(--gray);font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.kanban-cards{display:flex;flex-direction:column;gap:8px;padding:8px;min-height:120px;background:var(--gray-light);border-radius:0 0 var(--radius) var(--radius)}
+.task-card{background:var(--card);border-radius:var(--radius);padding:12px;border:1px solid var(--border);cursor:pointer;transition:all .15s;font-size:13px}
+.task-card:hover{box-shadow:var(--shadow-md);border-color:var(--blue)}
+.task-card-title{font-weight:500;color:#202124;margin-bottom:6px;line-height:1.3}
+.task-card-meta{font-size:11px;color:var(--gray);display:flex;gap:8px;flex-wrap:wrap}
+.task-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500}
+.tag-blue{background:var(--blue-light);color:var(--blue)}.tag-green{background:var(--green-light);color:var(--green)}.tag-orange{background:var(--orange-light);color:var(--orange)}.tag-red{background:var(--red-light);color:var(--red)}.tag-purple{background:var(--purple-light);color:var(--purple)}
+
+/* ===== TASK LIST TAB ===== */
+.task-table{width:100%;border-collapse:collapse}
+.task-table th{text-align:left;padding:10px 16px;font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;cursor:pointer;user-select:none}
+.task-table th:hover{color:var(--blue)}
+.task-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.task-table tr:hover td{background:#f8f9ff}
+.task-table .col-id{font-family:monospace;font-size:12px;color:var(--gray)}
+.task-table .col-task{font-weight:500;color:#202124}
+.task-priority{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px}
+.pri-high{background:var(--red)}.pri-medium{background:var(--orange)}.pri-low{background(var(--green))}
+
+/* ===== GANTT TAB ===== */
+.gantt-wrapper{overflow-x:auto;padding:20px}
+.gantt-controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.gantt-ctrl{padding:6px 14px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);color:var(--gray);transition:all .15s}
+.gantt-ctrl.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.gantt-ctrl:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+.gantt-table{width:100%;border-collapse:collapse;min-width:900px}
+.gantt-table th{text-align:left;padding:8px 12px;font-size:12px;font-weight:600;color:var(--gray);border-bottom:2px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:2}
+.gantt-table td{border-bottom:1px solid var(--border);padding:4px 12px;vertical-align:middle}
+.gantt-table tr:hover td{background:#f8f9ff}
+.gantt-proj-name{font-weight:600;font-size:13px;color:#202124}
+.gantt-proj-stage{font-size:11px;color:var(--gray);margin-top:2px}
+.gantt-bar-wrap{position:relative;height:24px;background:var(--gray-light);border-radius:4px}
+.gantt-bar{position:absolute;height:24px;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:500;color:#fff;cursor:pointer;transition:all .2s;white-space:nowrap;overflow:hidden}
+.gantt-bar:hover{opacity:.85;transform:scaleY(1.1)}
+.bar-blue{background:linear-gradient(90deg,#1a73e8,#4285f4)}.bar-green{background:linear-gradient(90deg,#00a96c,#34a853)}.bar-orange{background:linear-gradient(90deg,#f57c00,#fb8c00)}.bar-purple{background:linear-gradient(90deg,#7c4dff,#9c6fff)}.bar-gray{background:linear-gradient(90deg,#5f6368,#78909c)}.bar-red{background:linear-gradient(90deg,#d93025,#ea4335)}
+
+/* ===== RISK TAB ===== */
+.risk-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.risk-badge{display:flex;flex-direction:column;align-items:center;padding:16px;border-radius:var(--radius-lg);text-align:center;cursor:pointer;transition:all .15s}
+.risk-badge:hover{transform:translateY(-2px)}
+.risk-badge.high{background:var(--red-light);border:1px solid #f5c6cb}
+.risk-badge.medium{background:var(--orange-light);border:1px solid #ffe5b4}
+.risk-badge.low{background:var(--green-light);border:1px solid #c3e6cb}
+.risk-badge.total{background:var(--blue-light);border:1px solid #b8daff}
+.risk-num{font-size:28px;font-weight:700}
+.risk-num.high{color:var(--red)}.risk-num.medium{color:var(--orange)}.risk-num.low{color:var(--green)}.risk-num.total{color:var(--blue)}
+.risk-lbl{font-size:12px;color:var(--gray);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.risk-table{width:100%;border-collapse:collapse}
+.risk-table th{text-align:left;padding:10px 16px;font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--bg)}
+.risk-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border)}
+.risk-table tr:hover td{background:#f8f9ff}
+.risk-level{width:80px}
+.risk-level-tag{display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:600}
+.level-high{background:var(--red-light);color:var(--red)}.level-medium{background:var(--orange-light);color:var(--orange)}.level-low{background:var(--green-light);color:var(--green)}
+
+/* ===== FILTER BAR ===== */
+.filter-bar{display:flex;gap:8px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.filter-label{font-size:13px;color:var(--gray);font-weight:500}
+.filter-select{height:32px;padding:0 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--card);color:#202124;cursor:pointer}
+.filter-count{margin-left:auto;font-size:12px;color:var(--gray)}
+
+/* ===== PAGINATION ===== */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border)}
+.pagination-info{font-size:13px;color:var(--gray)}
+.pagination-btns{display:flex;gap:4px}
+.page-btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);color:var(--gray);transition:all .15s}
+.page-btn:hover{background:var(--gray-light)}
+.page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap{height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-fill-sm{height:100%;border-radius:3px}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{padding:60px 20px;text-align:center;color:var(--gray)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.empty-text{font-size:14px}
+
+/* ===== TOOLTIP ===== */
+.tooltip{position:relative}
+.tooltip::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#333;color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+.tooltip:hover::after{opacity:1}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1100px){.stats-row{grid-template-columns:repeat(3,1fr)}.overview-grid{grid-template-columns:1fr}.main-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}.kanban-board{grid-template-columns:repeat(3,1fr)}.nav-tabs{overflow-x:auto}}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD OVERLAY -->
+<div id="pw-overlay" style="position:fixed;inset:0;background:linear-gradient(135deg,#1a73e8,#34a853);display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column;gap:20px;">
+  <div style="text-align:center;color:#fff;margin-bottom:8px;">
+    <div style="font-size:48px;margin-bottom:8px;">🏥</div>
+    <h1 style="font-size:24px;font-weight:700;letter-spacing:2px;">临床研究项目管理平台</h1>
+    <p style="opacity:.7;font-size:14px;margin-top:4px;">Clinical Research Project Management</p>
+  </div>
+  <div style="background:rgba(255,255,255,.15);padding:40px;border-radius:16px;backdrop-filter:blur(20px);text-align:center;border:1px solid rgba(255,255,255,.2);min-width:320px;">
+    <p style="color:rgba(255,255,255,.8);margin-bottom:16px;font-size:14px;">🔐 请输入访问密码</p>
+    <input type="password" id="pw-input" placeholder="输入密码后按回车" onkeydown="if(event.key==='Enter')chkPwd()" style="width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,.3);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:16px;outline:none;text-align:center;"/>
+    <button onclick="chkPwd()" style="margin-top:12px;width:100%;padding:12px;background:#fff;color:#1a73e8;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">进入平台</button>
+    <p id="pw-err" style="color:#ff6b6b;margin-top:10px;font-size:13px;display:none;">密码错误，请重试</p>
+  </div>
+</div>
+<script>function chkPwd(){var v=document.getElementById('pw-input').value;if(v==='help2026'){document.getElementById('pw-overlay').style.display='none';}else{document.getElementById('pw-err').style.display='block';document.getElementById('pw-input').value='';}}</script>
+
+<!-- ===== TOP NAVIGATION ===== -->
+<nav class="topnav">
+  <div class="logo">🏥 <span>临床研究</span>管理平台</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('overview')">📊 概览</button>
+    <button class="nav-tab" onclick="switchView('kanban')">📋 看板</button>
+    <button class="nav-tab" onclick="switchView('tasklist')">📝 任务列表</button>
+    <button class="nav-tab" onclick="switchView('gantt')">📅 甘特图</button>
+    <button class="nav-tab" onclick="switchView('risk')">⚠️ 风险跟踪</button>
+  </div>
+  <div class="nav-right">
+    <span style="font-size:12px;color:var(--gray);" id="navTime"></span>
+    <button class="btn">🔔 通知</button>
+    <button class="btn btn-primary">+ 新建项目</button>
+  </div>
+</nav>
+
+<!-- ===== CONTAINER ===== -->
+<div class="container">
+
+  <!-- ===== OVERVIEW TAB ===== -->
+  <div class="panel active" id="panel-overview">
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">在研项目</div>
+        <div class="stat-value blue">11</div>
+        <div class="stat-sub">全部项目中研数量</div>
+        <div class="stat-trend up">↑ 3项 本季度新增</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">目标入组</div>
+        <div class="stat-value green">320</div>
+        <div class="stat-sub">全部项目计划入组</div>
+        <div class="stat-trend">年度目标汇总</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已入组</div>
+        <div class="stat-value orange">45</div>
+        <div class="stat-sub">当前累计入组</div>
+        <div class="stat-trend up">↑ 12例 本月新增</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">随访中</div>
+        <div class="stat-value purple">18</div>
+        <div class="stat-sub">正在随访受试者</div>
+        <div class="stat-trend">分布在 4 个项目</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">待处理任务</div>
+        <div class="stat-value red">89</div>
+        <div class="stat-sub">本周需完成</div>
+        <div class="stat-trend down">⚠ 12项已逾期</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Left: Project Cards + Enrollment -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 项目概览 <span class="badge">11个项目</span></div>
+            <button class="btn" style="font-size:12px;height:28px;padding:0 10px;">查看全部 →</button>
+          </div>
+          <div class="card-body no-pad" style="max-height:400px;overflow-y:auto;" id="overview-projects"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📊 入组进度</div>
+          </div>
+          <div class="card-body">
+            <div class="enrollment-list" id="enrollment-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Stage + Quick Stats -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏷 项目阶段分布</div>
+          </div>
+          <div class="card-body">
+            <div class="stage-list" id="stage-list"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📆 本周待办</div>
+            <span class="badge" id="todo-count">12项</span>
+          </div>
+          <div class="card-body no-pad" id="todo-list" style="max-height:300px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== KANBAN TAB ===== -->
+  <div class="panel" id="panel-kanban">
+    <div class="card no-bd">
+      <div class="filter-bar">
+        <span class="filter-label">项目筛选：</span>
+        <select class="filter-select" onchange="renderKanban()">
+          <option value="all">全部项目</option>
+        </select>
+        <span class="filter-label" style="margin-left:16px;">阶段筛选：</span>
+        <select class="filter-select" onchange="renderKanban()">
+          <option value="all">全部阶段</option>
+          <option>伦理审批</option><option>方案制定</option><option>启动会</option>
+          <option>入组中</option><option>随访中</option><option>数据清理</option><option>锁库</option><option>总结</option>
+        </select>
+        <span class="filter-count" id="kanban-count">共 550 条任务</span>
+      </div>
+      <div class="kanban-board" id="kanban-board"></div>
+    </div>
+  </div>
+
+  <!-- ===== TASK LIST TAB ===== -->
+  <div class="panel" id="panel-tasklist">
+    <div class="card">
+      <div class="filter-bar">
+        <span class="filter-label">项目：</span>
+        <select class="filter-select" onchange="renderTaskList()"><option value="all">全部</option></select>
+        <span class="filter-label" style="margin-left:12px;">阶段：</span>
+        <select class="filter-select" onchange="renderTaskList()"><option value="all">全部</option></select>
+        <span class="filter-label" style="margin-left:12px;">状态：</span>
+        <select class="filter-select" onchange="renderTaskList()">
+          <option value="all">全部</option>
+          <option>未开始</option><option>进行中</option><option>已完成</option><option>已逾期</option>
+        </select>
+        <span class="filter-count" id="tasklist-count">共 550 条任务</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="task-table" id="task-table">
+          <thead><tr>
+            <th style="width:80px">编号 ↕</th>
+            <th>任务名称 ↕</th>
+            <th style="width:120px">所属项目 ↕</th>
+            <th style="width:100px">阶段 ↕</th>
+            <th style="width:80px">状态 ↕</th>
+            <th style="width:80px">优先级</th>
+            <th style="width:100px">负责人</th>
+            <th style="width:100px">计划完成</th>
+          </tr></thead>
+          <tbody id="task-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span class="pagination-info" id="page-info">显示 1-20 条，共 550 条</span>
+        <div class="pagination-btns">
+          <button class="page-btn">← 上一页</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">…</button>
+          <button class="page-btn">下一页 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GANTT TAB ===== -->
+  <div class="panel" id="panel-gantt">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 项目甘特图</div>
+      </div>
+      <div class="gantt-wrapper">
+        <div class="gantt-controls" id="gantt-controls"></div>
+        <div style="overflow-x:auto;">
+          <table class="gantt-table" id="gantt-table">
+            <thead id="gantt-thead"></thead>
+            <tbody id="gantt-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RISK TAB ===== -->
+  <div class="panel" id="panel-risk">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚠️ 风险跟踪</div>
+        <button class="btn btn-primary" style="height:30px;font-size:12px;padding:0 12px;">+ 新增风险</button>
+      </div>
+      <div class="risk-summary" id="risk-summary">
+        <div class="risk-badge total"><div class="risk-num total">8</div><div class="risk-lbl">风险总数</div></div>
+        <div class="risk-badge high"><div class="risk-num high">3</div><div class="risk-lbl">高风险</div></div>
+        <div class="risk-badge medium"><div class="risk-num medium">3</div><div class="risk-lbl">中风险</div></div>
+        <div class="risk-badge low"><div class="risk-num low">2</div><div class="risk-lbl">低风险</div></div>
+      </div>
+      <div class="filter-bar">
+        <span class="filter-label">风险等级：</span>
+        <select class="filter-select"><option>全部</option><option>高</option><option>中</option><option>低</option></select>
+        <span class="filter-label" style="margin-left:16px;">关联项目：</span>
+        <select class="filter-select"><option>全部项目</option></select>
+        <span class="filter-count">共 8 条风险记录</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="risk-table">
+          <thead><tr>
+            <th style="width:60px">序号</th>
+            <th style="width:100px">风险等级</th>
+            <th style="width:200px">风险描述</th>
+            <th style="width:120px">关联项目</th>
+            <th style="width:100px">责任人</th>
+            <th style="width:100px">影响日期</th>
+            <th>应对措施</th>
+            <th style="width:80px">状态</th>
+          </tr></thead>
+          <tbody id="risk-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ===== DATA =====
+const PROJECTS = [
+  {id:"P01",name:"项目1（请填写项目名称）",stage:"伦理审批",leader:"待定",target:30,enrolled:8,progress:27,start:"2026-01",end:"2027-06",risk:"入组压力中等",color:"blue"},
+  {id:"P02",name:"项目2（请填写项目名称）",stage:"方案制定",leader:"待定",target:25,enrolled:3,progress:12,start:"2026-02",end:"2027-04",risk:"暂无",color:"purple"},
+  {id:"P03",name:"项目3（请填写项目名称）",stage:"启动会",leader:"待定",target:40,enrolled:0,progress:0,start:"2026-02",end:"2027-08",risk:"暂无",color:"green"},
+  {id:"P04",name:"项目4（请填写项目名称）",stage:"入组中",leader:"待定",target:60,enrolled:18,progress:30,start:"2025-11",end:"2027-11",risk:"入组进度低于预期",color:"orange"},
+  {id:"P05",name:"项目5（请填写项目名称）",stage:"入组中",leader:"待定",target:35,enrolled:12,progress:34,start:"2025-12",end:"2027-06",risk:"暂无",color:"green"},
+  {id:"P06",name:"项目6（请填写项目名称）",stage:"随访中",leader:"待定",target:20,enrolled:4,progress:20,start:"2025-09",end:"2027-03",risk:"随访依从性风险",color:"blue"},
+  {id:"P07",name:"项目7（请填写项目名称）",stage:"数据清理",leader:"待定",target:0,enrolled:0,progress:0,start:"2025-10",end:"2027-01",risk:"暂无",color:"purple"},
+  {id:"P08",name:"项目8（请填写项目名称）",stage:"伦理审批",leader:"待定",target:50,enrolled:0,progress:0,start:"2026-03",end:"2027-12",risk:"暂无",color:"orange"},
+  {id:"P09",name:"项目9（请填写项目名称）",stage:"随访中",leader:"待定",target:30,enrolled:0,progress:0,start:"2025-10",end:"2027-04",risk:"暂无",color:"green"},
+  {id:"P10",name:"项目10（请填写项目名称）",stage:"锁库",leader:"待定",target:20,enrolled:0,progress:0,start:"2025-06",end:"2026-12",risk:"暂无",color:"red"},
+  {id:"P11",name:"项目11（请填写项目名称）",stage:"总结",leader:"待定",target:10,enrolled:0,progress:0,start:"2025-04",end:"2026-06",risk:"暂无",color:"gray"},
+];
+
+const TASKS = [];
+let taskId = 1;
+const PHASES = ["01-项目立项","02-伦理审批","03-合同与财务","04-启动前准备","05-启动会(SIV)","06-入组管理","07-随访与SAE","08-数据清理","09-数据库锁库","10-总结与归档"];
+const PHASE_TASKS = {
+  "01-项目立项":["方案可行性评估","预算编制与审核","供应商筛选","项目计划制定","内部立项审批"],
+  "02-伦理审批":["伦理申请材料准备","伦理申请提交","伦理审批意见回复","人类遗传办审批","伦理批件获取归档"],
+  "03-合同与财务":["合同模板确定","中心合同签署","财务协议签订","供应商合同签署","首付款催收"],
+  "04-启动前准备":["物资准备与配送","EDC系统建库","中心启动前培训","原始文件准备","遗传办备案完成"],
+  "05-启动会(SIV)":["启动会预约与组织","启动会PPT汇报","启动会纪要归档","研究者授权分工","首例筛查确认"],
+  "06-入组管理":["受试者筛查","知情同意签署","随机化执行","入组率监控","中心激活管理"],
+  "07-随访与SAE":["随访计划执行","AE/SAE报告","方案偏离管理","合并用药记录","随访依从性管理"],
+  "08-数据清理":["数据录入与质疑","医学编码","数据人工核查(SDV)","方案违背核查","数据库预锁"],
+  "09-数据库锁库":["数据锁库审批","数据库锁定","统计编程执行","锁库报告撰写","数据归档移交"],
+  "10-总结与归档":["总结报告撰写","总结报告审核","项目文档归档","尾款结算","项目关闭会议"],
+};
+const STATUSES = ["未开始","进行中","待确认","已完成","已逾期"];
+const PRIORITIES = ["高","中","低"];
+
+PROJECTS.forEach(p => {
+  PHASES.forEach(phase => {
+    PHASE_TASKS[phase].forEach((tname, idx) => {
+      const phaseShort = phase.split("-")[1];
+      let statusIdx;
+      if (p.stage === "伦理审批" && phase.includes("02")) statusIdx = 1;
+      else if (p.stage === "方案制定" && phase.includes("01")) statusIdx = 4;
+      else if (p.stage === "入组中" && phase.includes("06")) statusIdx = 1;
+      else if (p.stage === "随访中" && phase.includes("07")) statusIdx = 1;
+      else if (p.stage === "数据清理" && phase.includes("08")) statusIdx = 1;
+      else if (p.stage === "锁库" && phase.includes("09")) statusIdx = 1;
+      else if (p.stage === "总结" && phase.includes("10")) statusIdx = 4;
+      else if (p.stage === "启动会" && phase.includes("05")) statusIdx = 2;
+      else statusIdx = 0;
+      TASKS.push({
+        id: "T" + String(taskId).padStart(4,"0"),
+        name: tname,
+        project: p.name,
+        projId: p.id,
+        phase: phaseShort,
+        status: STATUSES[statusIdx],
+        priority: PRIORITIES[(taskId % 3)],
+        owner: p.leader,
+        due: "2026-0" + (1 + (taskId % 8)) + "-15",
+      });
+      taskId++;
+    });
+  });
+});
+
+// RISK DATA
+const RISKS = [
+  {id:1,level:"高",desc:"项目4入组进度低于预期60%，存在中心启动延迟风险",proj:"项目4",owner:"待定",date:"2026-05-01",measure:"启动激励计划，增加中心数量，加强CRA访视频率",status:"open"},
+  {id:2,level:"高",desc:"项目6部分受试者随访依从性下降，存在数据脱落风险",proj:"项目6",owner:"待定",date:"2026-04-30",measure:"加强电话随访提醒，提供交通补贴激励",status:"open"},
+  {id:3,level:"高",desc:"项目4/5涉及SAE，需要紧急医学监查评估",proj:"项目4",owner:"待定",date:"2026-04-20",measure:"召开医学监查会议，评估安全性数据",status:"open"},
+  {id:4,level:"中",desc:"多个中心伦理审批流程延长，可能影响启动时间",proj:"项目1/8",owner:"待定",date:"2026-06-01",measure:"提前沟通伦理委员会，建立绿色通道",status:"open"},
+  {id:5,level:"中",desc:"EDC系统供应商响应速度慢，数据录入延迟",proj:"项目4/5/6",owner:"待定",date:"2026-05-15",measure:"建立SLA协议，设置专人跟进",status:"open"},
+  {id:6,level:"中",desc:"项目7数据清理阶段质疑解答率偏低，影响锁库进度",proj:"项目7",owner:"待定",date:"2026-06-30",measure:"增加数据管理人手，设立KPI考核",status:"open"},
+  {id:7,level:"低",desc:"部分中心物资配送不及时",proj:"项目3",owner:"待定",date:"2026-05-01",measure:"优化物流方案，建立应急备货",status:"monitoring"},
+  {id:8,level:"低",desc:"项目10锁库后统计报告撰写进度略有延迟",proj:"项目10",owner:"待定",date:"2026-05-31",measure:"增加统计师资源，设定每日产出目标",status:"resolved"},
+];
+
+// TODO DATA
+const TODOS = [
+  {text:"伦理审批意见回复 - 项目1",time:"今天",urgent:true},
+  {text:"启动会PPT准备 - 项目3",time:"今天",urgent:false},
+  {text:"受试者随访 - 项目4",time:"明天",urgent:true},
+  {text:"数据质疑解答 - 项目7",time:"明天",urgent:false},
+  {text:"统计报告审核 - 项目10",time:"本周",urgent:false},
+  {text:"供应商合同签署 - 项目2",time:"本周",urgent:false},
+  {text:"EDC系统建库 - 项目8",time:"本周",urgent:true},
+  {text:"项目文档归档 - 项目11",time:"本周",urgent:false},
+  {text:"入组率分析报告 - 项目4/5",time:"本周",urgent:false},
+  {text:"SAE报告审核 - 项目4/6",time:"本周",urgent:true},
+  {text:"财务协议对账 - 项目2/3",time:"下周",urgent:false},
+  {text:"研究者培训 - 项目8",time:"下周",urgent:false},
+];
+
+// ===== RENDER FUNCTIONS =====
+
+function renderOverview() {
+  // Projects
+  const projEl = document.getElementById("overview-projects");
+  projEl.innerHTML = PROJECTS.map(p => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer" onmouseover="this.style.background='var(--gray-light)'" onmouseout="this.style.background=''">
+      <div style="width:40px;height:40px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏥</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13px;color:#202124">${p.name}</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:2px">${p.stage} · ${p.leader} · ${p.enrolled}/${p.target}例入组</div>
+      </div>
+      <div style="width:60px;text-align:right">
+        <div style="font-size:13px;font-weight:600;color:var(--blue)">${p.progress}%</div>
+        <div class="progress-wrap"><div class="progress-fill-sm fill-${p.color}" style="width:${p.progress}%"></div></div>
+      </div>
+    </div>
+  `).join("");
+
+  // Enrollment
+  const enrollEl = document.getElementById("enrollment-list");
+  enrollEl.innerHTML = PROJECTS.filter(p=>p.target>0).slice(0,6).map(p=>`
+    <div class="enrollment-item">
+      <div class="enrollment-header">
+        <div class="enrollment-name" title="${p.name}">${p.name}</div>
+        <div class="enrollment-num">${p.enrolled}/${p.target}例 (${p.progress}%)</div>
+      </div>
+      <div class="enrollment-bar"><div class="enrollment-fill fill-${p.color}" style="width:${p.progress}%"></div></div>
+    </div>
+  `).join("");
+
+  // Stage Distribution
+  const stageMap = {};
+  PROJECTS.forEach(p => { stageMap[p.stage] = (stageMap[p.stage]||0)+1; });
+  const stageColors = {
+    "伦理审批":"#5f6368","方案制定":"#7c4dff","启动会":"#1a73e8",
+    "入组中":"#f57c00","随访中":"#00a96c","数据清理":"#f9ab00",
+    "锁库":"#d93025","总结":"#34a853"
+  };
+  const stageEl = document.getElementById("stage-list");
+  stageEl.innerHTML = Object.entries(stageMap).map(([s,c])=>`
+    <div class="stage-row">
+      <div class="stage-dot" style="background:${stageColors[s]||'#5f6368'}"></div>
+      <div class="stage-info"><div class="stage-name">${s}</div><div class="stage-meta">${c} 个项目</div></div>
+      <div class="stage-count">${c}</div>
+    </div>
+  `).join("");
+
+  // Todo
+  const todoEl = document.getElementById("todo-list");
+  todoEl.innerHTML = TODOS.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer" onmouseover="this.style.background='var(--gray-light)'" onmouseout="this.style.background=''">
+      <div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;${t.urgent?"background:var(--red)":"background:var(--gray)"}"></div>
+      <div style="flex:1">${t.text}</div>
+      <div style="font-size:11px;color:${t.urgent?"var(--red)":"var(--gray)"};font-weight:${t.urgent?"600":"400"}">${t.time}</div>
+    </div>
+  `).join("");
+  document.getElementById("todo-count").textContent = TODOS.length + "项";
+}
+
+function renderKanban() {
+  const board = document.getElementById("kanban-board");
+  const cols = ["未开始","进行中","待确认","已完成","已逾期"];
+  const colColors = ["#5f6368","#1a73e8","#f9ab00","#00a96c","#d93025"];
+  const tasksByStatus = {};
+  cols.forEach(c => tasksByStatus[c] = []);
+  TASKS.slice(0,110).forEach(t => {
+    if(tasksByStatus[t.status]) tasksByStatus[t.status].push(t);
+  });
+  board.innerHTML = cols.map((col,ci)=>`
+    <div class="kanban-col">
+      <div class="kanban-col-header">
+        <span>${col}</span>
+        <span class="kanban-col-count" style="background:${colColors[ci]};color:#fff">${tasksByStatus[col].length}</span>
+      </div>
+      <div class="kanban-cards">
+        ${tasksByStatus[col].slice(0,8).map(t=>`
+          <div class="task-card" onclick="alert('任务: ${t.name}\\n项目: ${t.project}\\n阶段: ${t.phase}\\n状态: ${t.status}\\n优先级: ${t.priority}\\n负责人: ${t.owner}\\n计划: ${t.due}')">
+            <div class="task-card-title">${t.name}</div>
+            <div class="task-card-meta">
+              <span class="task-tag tag-blue">${t.projId}</span>
+              <span class="task-tag tag-green">${t.phase}</span>
+              <span class="task-tag tag-orange">${t.priority}优先</span>
+            </div>
+          </div>
+        `).join("")}
+        ${tasksByStatus[col].length > 8 ? `<div style="text-align:center;font-size:12px;color:var(--gray);padding:8px;">还有 ${tasksByStatus[col].length-8} 条...</div>` : ""}
+      </div>
+    </div>
+  `).join("");
+  document.getElementById("kanban-count").textContent = `共 ${TASKS.slice(0,110).length} 条任务`;
+}
+
+function renderTaskList() {
+  const tbody = document.getElementById("task-tbody");
+  const pageSize = 20;
+  const page = 1;
+  const start = (page-1)*pageSize;
+  const slice = TASKS.slice(start, start+pageSize);
+  tbody.innerHTML = slice.map(t=>`
+    <tr>
+      <td class="col-id">${t.id}</td>
+      <td class="col-task">${t.name}</td>
+      <td>${t.project}</td>
+      <td><span class="task-tag tag-blue">${t.phase}</span></td>
+      <td><span class="task-tag ${t.status==='已完成'?'tag-green':t.status==='已逾期'?'tag-red':'tag-blue'}">${t.status}</span></td>
+      <td>
+        <span class="task-priority pri-${t.priority==='高'?'high':t.priority==='中'?'medium':'low'}"></span>
+        ${t.priority}
+      </td>
+      <td>${t.owner}</td>
+      <td>${t.due}</td>
+    </tr>
+  `).join("");
+  document.getElementById("page-info").textContent = `显示 ${start+1}-${start+slice.length} 条，共 ${TASKS.length} 条`;
+  document.getElementById("tasklist-count").textContent = `共 ${TASKS.length} 条任务`;
+}
+
+function renderGantt() {
+  const thead = document.getElementById("gantt-thead");
+  const tbody = document.getElementById("gantt-tbody");
+  const months = ["2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10","2026-11","2026-12"];
+
+  thead.innerHTML = `<tr><th style="width:200px">项目</th>${months.map(m=>`<th style="width:60px;text-align:center">${m.slice(5)}月</th>`).join("")}</tr>`;
+
+  tbody.innerHTML = PROJECTS.map(p=>{
+    const startIdx = months.indexOf(p.start);
+    const endIdx = months.indexOf(p.end);
+    const bars = [];
+    if(startIdx>=0 && endIdx>=0) {
+      const left = startIdx * 60;
+      const width = (endIdx - startIdx + 1) * 60;
+      bars.push(`<div class="gantt-bar bar-${p.color}" style="left:${left}px;width:${width}px" title="${p.stage}">${p.stage}</div>`);
+    }
+    return `<tr>
+      <td><div class="gantt-proj-name">${p.name}</div><div class="gantt-proj-stage">${p.stage} · ${p.enrolled}/${p.target}例</div></td>
+      ${months.map(()=>`<td style="position:relative"><div class="gantt-bar-wrap">${bars.join("")}</div></td>`).join("")}
+    </tr>`;
+  }).join("");
+}
+
+function renderRisk() {
+  const tbody = document.getElementById("risk-tbody");
+  tbody.innerHTML = RISKS.map(r=>`
+    <tr>
+      <td>${r.id}</td>
+      <td class="risk-level"><span class="risk-level-tag level-${r.level}">${r.level}</span></td>
+      <td style="max-width:280px">${r.desc}</td>
+      <td>${r.proj}</td>
+      <td>${r.owner}</td>
+      <td>${r.date}</td>
+      <td style="max-width:260px;font-size:12px;color:var(--gray)">${r.measure}</td>
+      <td><span class="task-tag ${r.status==='resolved'?'tag-green':r.status==='monitoring'?'tag-purple':'tag-orange'}">${r.status==='resolved'?'已解决':r.status==='monitoring'?'监控中':'待处理'}</span></td>
+    </tr>
+  `).join("");
+}
+
+function switchView(view) {
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("panel-"+view).classList.add("active");
+  event.target.classList.add("active");
+}
+
+// Init
+document.addEventListener("DOMContentLoaded",()=>{
+  renderOverview();
+  renderKanban();
+  renderTaskList();
+  renderGantt();
+  renderRisk();
+  const now=new Date();
+  document.getElementById("navTime").textContent=now.toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+  setInterval(()=>{
+    const n=new Date();
+    document.getElementById("navTime").textContent=n.toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+  },60000);
+});
+</script>
+</body>
+</html>
