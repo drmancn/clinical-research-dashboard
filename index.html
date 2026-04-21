@@ -421,17 +421,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica N
 <script>
 // ===== DATA =====
 const PROJECTS = [
-  {id:"P01",name:"项目1（请填写项目名称）",stage:"伦理审批",leader:"待定",target:30,enrolled:8,progress:27,start:"2026-01",end:"2027-06",risk:"入组压力中等",color:"blue"},
-  {id:"P02",name:"项目2（请填写项目名称）",stage:"方案制定",leader:"待定",target:25,enrolled:3,progress:12,start:"2026-02",end:"2027-04",risk:"暂无",color:"purple"},
-  {id:"P03",name:"项目3（请填写项目名称）",stage:"启动会",leader:"待定",target:40,enrolled:0,progress:0,start:"2026-02",end:"2027-08",risk:"暂无",color:"green"},
-  {id:"P04",name:"项目4（请填写项目名称）",stage:"入组中",leader:"待定",target:60,enrolled:18,progress:30,start:"2025-11",end:"2027-11",risk:"入组进度低于预期",color:"orange"},
-  {id:"P05",name:"项目5（请填写项目名称）",stage:"入组中",leader:"待定",target:35,enrolled:12,progress:34,start:"2025-12",end:"2027-06",risk:"暂无",color:"green"},
-  {id:"P06",name:"项目6（请填写项目名称）",stage:"随访中",leader:"待定",target:20,enrolled:4,progress:20,start:"2025-09",end:"2027-03",risk:"随访依从性风险",color:"blue"},
-  {id:"P07",name:"项目7（请填写项目名称）",stage:"数据清理",leader:"待定",target:0,enrolled:0,progress:0,start:"2025-10",end:"2027-01",risk:"暂无",color:"purple"},
-  {id:"P08",name:"项目8（请填写项目名称）",stage:"伦理审批",leader:"待定",target:50,enrolled:0,progress:0,start:"2026-03",end:"2027-12",risk:"暂无",color:"orange"},
-  {id:"P09",name:"项目9（请填写项目名称）",stage:"随访中",leader:"待定",target:30,enrolled:0,progress:0,start:"2025-10",end:"2027-04",risk:"暂无",color:"green"},
-  {id:"P10",name:"项目10（请填写项目名称）",stage:"锁库",leader:"待定",target:20,enrolled:0,progress:0,start:"2025-06",end:"2026-12",risk:"暂无",color:"red"},
-  {id:"P11",name:"项目11（请填写项目名称）",stage:"总结",leader:"待定",target:10,enrolled:0,progress:0,start:"2025-04",end:"2026-06",risk:"暂无",color:"gray"},
+  {id:"P01",name:"项目1（经心外膜注射人iPSC来源心肌细胞注射液（HiCM-188）治疗严重慢性缺血性心力衰竭的临床研究）",stage:"随访期",leader:"赵甜宇",target:27,enrolled:17,progress:63,start:"2025-01",end:"2027-06",risk:"暂无",color:"blue"},
+  {id:"P02",name:"项目2（心肌内注射人诱导多能干细胞来源心肌细胞注射液(HiCM-188)治疗严重心力衰竭（NYHA III-IV）的确证性临床试验）",stage:"待启动",leader:"赵甜宇",target:0,enrolled:0,progress:0,start:"2026-02",end:"2028-06",risk:"暂无",color:"purple"},
+  {id:"P03",name:"项目3（经心内膜注射人 iPSC 来源心肌细胞注射液治疗充血性心力衰竭的临床研究）",stage:"入组期",leader:"赵甜宇",target:9,enrolled:9,progress:100,start:"2023-10",end:"2026-12",risk:"暂无",color:"green"},
+  {id:"P04",name:"项目4（人 iPSC 来源心肌细胞治疗终末期心力衰竭的安全性与有效性研究）",stage:"入组期",leader:"范佳浩",target:12,enrolled:12,progress:100,start:"2025-03",end:"2027-03",risk:"暂无",color:"orange"},
+  {id:"P05",name:"项目5（探索注射用人脐带间充质干细胞(hMSC100)/HiCM388治疗急性 ST段抬高型心肌梗死经血管再通治疗后的患者安全性及初步有效性的单中心、随机、单盲、安慰剂对照临床试验）",stage:"立项",leader:"范佳浩",target:0,enrolled:0,progress:0,start:"2026-01",end:"2028-06",risk:"暂无",color:"green"},
+  {id:"P06",name:"项目6（经静脉内输注人脐带间充质干细胞治疗缺血性心肌病的临床研究方案）",stage:"立项",leader:"赵甜宇",target:0,enrolled:0,progress:0,start:"2026-01",end:"2028-12",risk:"暂无",color:"blue"},
+  {id:"P07",name:"项目7（评价注射用人脐带间充质干细胞（hMSC100）在极高骨折风险的绝经后妇女骨质疏松症患者的安全性及耐受性的单中心、开放、单臂、3+3剂量爬坡I期临床研究）",stage:"关中心",leader:"韩悦",target:10,enrolled:9,progress:90,start:"2025-08",end:"2027-08",risk:"暂无",color:"purple"},
+  {id:"P08",name:"项目8（评价注射用人脐带间充质干细胞（hMSC100）在极高骨折风险的绝经后妇女骨质疏松症患者的有效性和安全性的多中心、随机、双盲、安慰剂对照、多次给药的临床研究）",stage:"立项",leader:"韩悦、董阳",target:0,enrolled:0,progress:0,start:"2026-03",end:"2028-12",risk:"暂无",color:"orange"},
+  {id:"P09",name:"项目9（静脉输注注射用人脐带间充质干细胞（hMSC100）治疗高骨折风险的老年骨质疏松症安全性和有效性的初步探索）",stage:"立项",leader:"赵甜宇",target:0,enrolled:0,progress:0,start:"2026-01",end:"2028-06",risk:"暂无",color:"green"},
+  {id:"P10",name:"项目10（人脐带间充质干细胞注射液治疗膝骨关节炎的随机、单盲、阳性对照临床研究）",stage:"立项",leader:"赵甜宇",target:0,enrolled:0,progress:0,start:"2026-04",end:"2028-12",risk:"暂无",color:"red"},
+  {id:"P11",name:"项目11（香港HiCM导管治疗心梗）",stage:"待确认",leader:"谢宏发",target:0,enrolled:0,progress:0,start:"2026-01",end:"2028-12",risk:"暂无",color:"gray"},
+  {id:"P12",name:"项目12（MSC静注治疗DMD）",stage:"方案起草",leader:"陈丽",target:0,enrolled:0,progress:0,start:"2026-01",end:"2028-12",risk:"暂无",color:"gray"},
+  {id:"P13",name:"项目13（浙二MSC治疗口干症）",stage:"待伦理",leader:"金磊",target:0,enrolled:0,progress:0,start:"2026-01",end:"2028-12",risk:"暂无",color:"gray"},
 ];
 
 const TASKS = [];
